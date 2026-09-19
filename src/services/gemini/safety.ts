@@ -1,18 +1,11 @@
 import { callGemini, AiError } from './client';
+import { sanitizePlainText, safeStringArray, MAX_INPUT_LENGTH } from '../../utils/sanitize';
 
 export interface SafetyCheckResult {
   assessment: string;
   warningSigns: string[];
   safeActions: string[];
   avoidActions: string[];
-}
-
-/**
- * Sanitizes plain text by removing any HTML tags or script injection attempts
- */
-function sanitizePlainText(val: unknown): string {
-  if (typeof val !== 'string') return '';
-  return val.replace(/<[^>]*>?/gm, '').trim();
 }
 
 /**
@@ -28,23 +21,22 @@ function enforceCautiousLanguage(text: string): string {
   return cleaned;
 }
 
-export function validateSafetyResult(data: any): SafetyCheckResult {
+export function validateSafetyResult(data: unknown): SafetyCheckResult {
   if (!data || typeof data !== 'object') {
     throw new AiError('Response is not an object', 'validation');
   }
 
-  const safeArray = (arr: any): string[] => {
-    if (!Array.isArray(arr)) return [];
-    return arr
-      .map((item) => (typeof item === 'string' ? sanitizePlainText(item) : ''))
-      .filter((item) => item.length > 0);
-  };
+  const record = data as Record<string, unknown>;
 
-  const rawAssessment = typeof data.assessment === 'string' ? data.assessment : (typeof data.summaryTitle === 'string' ? data.summaryTitle : '');
+  const rawAssessment = typeof record.assessment === 'string'
+    ? record.assessment
+    : (typeof record.summaryTitle === 'string' ? record.summaryTitle : '');
   const assessment = enforceCautiousLanguage(rawAssessment);
 
-  const rawWarningSigns = Array.isArray(data.warningSigns) ? data.warningSigns : (Array.isArray(data.warningFlags) ? data.warningFlags : []);
-  const warningSigns = safeArray(rawWarningSigns);
+  const rawWarningSigns = Array.isArray(record.warningSigns)
+    ? record.warningSigns
+    : (Array.isArray(record.warningFlags) ? record.warningFlags : []);
+  const warningSigns = safeStringArray(rawWarningSigns);
 
   const defaultSafeActions = [
     'Contact the organization using the phone number or website you already know.',
@@ -57,10 +49,12 @@ export function validateSafetyResult(data: any): SafetyCheckResult {
     'Do not transfer money or install any app or APK file.',
   ];
 
-  const rawSafeActions = Array.isArray(data.safeActions) ? data.safeActions : [];
-  const rawAvoidActions = Array.isArray(data.avoidActions) ? data.avoidActions : (Array.isArray(data.neverDo) ? data.neverDo : []);
+  const rawSafeActions = Array.isArray(record.safeActions) ? record.safeActions : [];
+  const rawAvoidActions = Array.isArray(record.avoidActions)
+    ? record.avoidActions
+    : (Array.isArray(record.neverDo) ? record.neverDo : []);
 
-  let safeActions = safeArray(rawSafeActions);
+  let safeActions = safeStringArray(rawSafeActions);
   if (safeActions.length === 0) {
     safeActions = defaultSafeActions;
   } else {
@@ -73,7 +67,7 @@ export function validateSafetyResult(data: any): SafetyCheckResult {
     }
   }
 
-  let avoidActions = safeArray(rawAvoidActions);
+  let avoidActions = safeStringArray(rawAvoidActions);
   if (avoidActions.length === 0) {
     avoidActions = defaultAvoidActions;
   }
@@ -92,8 +86,8 @@ export async function checkSafety(messageText: string): Promise<SafetyCheckResul
     throw new AiError('Message text cannot be empty', 'validation');
   }
 
-  if (trimmed.length > 2000) {
-    throw new AiError('Message is too long. Please keep it under 2000 characters.', 'validation');
+  if (trimmed.length > MAX_INPUT_LENGTH) {
+    throw new AiError(`Message is too long. Please keep it under ${MAX_INPUT_LENGTH} characters.`, 'validation');
   }
 
   const systemInstruction = `

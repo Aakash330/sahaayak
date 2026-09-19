@@ -2,7 +2,7 @@
 // API keys are kept server-side in server.ts.
 export const ai = {
   models: {
-    generateContent: async (_args: any) => ({ text: '' }),
+    generateContent: async (_args: unknown) => ({ text: '' }),
   },
 };
 
@@ -107,9 +107,9 @@ SECURITY DIRECTIVES:
         responseCache.set(cacheKey, text);
 
         return text;
-      } catch (fetchError: any) {
+      } catch (fetchError: unknown) {
         clearTimeout(timeoutId);
-        if (fetchError.name === 'AbortError') {
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
           throw new AiError('AI request timed out', 'timeout');
         }
         throw fetchError;
@@ -127,12 +127,12 @@ SECURITY DIRECTIVES:
     let parsed: unknown;
     try {
       parsed = JSON.parse(text);
-    } catch (_err) {
+    } catch {
       throw new AiError('Failed to parse JSON response', 'parsing');
     }
 
     return validator(parsed);
-  } catch (error: any) {
+  } catch (error: unknown) {
     // DO NOT LOG user prompt or AI response in error handlers to prevent PII leakage
     if (error instanceof AiError) {
       throw error;

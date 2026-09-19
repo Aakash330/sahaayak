@@ -1,18 +1,11 @@
 import { callGemini, AiError } from './client';
+import { sanitizePlainText, safeStringArray, MAX_INPUT_LENGTH } from '../../utils/sanitize';
 
 export interface GuidedTaskResult {
   task: string;
   steps: string[];
   safetyNotes: string[];
   title?: string;
-}
-
-/**
- * Sanitizes plain text by removing any HTML tags or script injection attempts
- */
-function sanitizePlainText(val: unknown): string {
-  if (typeof val !== 'string') return '';
-  return val.replace(/<[^>]*>?/gm, '').trim();
 }
 
 /**
@@ -25,25 +18,30 @@ function sanitizeStepInstruction(text: string): string {
   return cleaned;
 }
 
-export function validateGuidedTaskResult(data: any): GuidedTaskResult {
+export function validateGuidedTaskResult(data: unknown): GuidedTaskResult {
   if (!data || typeof data !== 'object') {
     throw new AiError('Response is not an object', 'validation');
   }
 
-  const rawTask = typeof data.task === 'string' ? data.task : (typeof data.title === 'string' ? data.title : '');
+  const record = data as Record<string, unknown>;
+  const rawTask = typeof record.task === 'string'
+    ? record.task
+    : (typeof record.title === 'string' ? record.title : '');
   const task = sanitizePlainText(rawTask) || 'Guided Task';
 
-  if (!Array.isArray(data.steps)) {
+  if (!Array.isArray(record.steps)) {
     throw new AiError('Steps must be an array', 'validation');
   }
 
-  const steps: string[] = data.steps
-    .map((item: any) => {
+  const steps: string[] = record.steps
+    .map((item: unknown) => {
       if (typeof item === 'string') {
         return sanitizeStepInstruction(item);
       }
       if (typeof item === 'object' && item !== null) {
-        return sanitizeStepInstruction(item.instruction || item.step || item.text || '');
+        const itemRecord = item as Record<string, unknown>;
+        const instruction = itemRecord.instruction || itemRecord.step || itemRecord.text || '';
+        return sanitizeStepInstruction(String(instruction));
       }
       return '';
     })
@@ -60,10 +58,8 @@ export function validateGuidedTaskResult(data: any): GuidedTaskResult {
   ];
 
   let rawSafetyNotes: string[] = [];
-  if (Array.isArray(data.safetyNotes)) {
-    rawSafetyNotes = data.safetyNotes
-      .map((item: any) => (typeof item === 'string' ? sanitizePlainText(item) : ''))
-      .filter((item: string) => item.length > 0);
+  if (Array.isArray(record.safetyNotes)) {
+    rawSafetyNotes = safeStringArray(record.safetyNotes);
   }
 
   const safetyNotes = rawSafetyNotes.length > 0 ? rawSafetyNotes : defaultSafetyNotes;
@@ -89,8 +85,8 @@ export async function breakIntoSteps(taskDescription: string): Promise<GuidedTas
     throw new AiError('Task description cannot be empty', 'validation');
   }
 
-  if (trimmed.length > 2000) {
-    throw new AiError('Task description is too long. Please keep it under 2000 characters.', 'validation');
+  if (trimmed.length > MAX_INPUT_LENGTH) {
+    throw new AiError(`Task description is too long. Please keep it under ${MAX_INPUT_LENGTH} characters.`, 'validation');
   }
 
   const systemInstruction = `

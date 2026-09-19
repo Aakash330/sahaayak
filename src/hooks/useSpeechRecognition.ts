@@ -19,6 +19,32 @@ interface SpeechRecognitionEvent extends Event {
   };
 }
 
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
+
+interface SpeechRecognitionWindow extends Window {
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+}
+
+function getSpeechRecognitionConstructor(): SpeechRecognitionConstructor | undefined {
+  if (typeof window === 'undefined') return undefined;
+  const win = window as SpeechRecognitionWindow;
+  return win.SpeechRecognition || win.webkitSpeechRecognition;
+}
+
 export interface UseSpeechRecognitionOptions {
   onResult?: (transcript: string) => void;
   onError?: (error: string) => void;
@@ -30,25 +56,12 @@ export function useSpeechRecognition(options?: UseSpeechRecognitionOptions) {
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [supported, setSupported] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return Boolean((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+    return Boolean(getSpeechRecognitionConstructor());
   });
 
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const optionsRef = useRef(options);
   optionsRef.current = options;
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      setSupported(false);
-      return;
-    }
-
-    const hasSpeechRecognition = Boolean(
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    );
-    setSupported(hasSpeechRecognition);
-  }, []);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
@@ -64,11 +77,9 @@ export function useSpeechRecognition(options?: UseSpeechRecognitionOptions) {
   const startListening = useCallback(() => {
     if (typeof window === 'undefined') return;
 
-    const SpeechRecognitionConstructor =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
+    const SpeechRecognitionClass = getSpeechRecognitionConstructor();
 
-    if (!SpeechRecognitionConstructor) {
+    if (!SpeechRecognitionClass) {
       setSupported(false);
       setError("Voice isn't available on this browser. You can type instead.");
       return;
@@ -84,7 +95,7 @@ export function useSpeechRecognition(options?: UseSpeechRecognitionOptions) {
     }
 
     try {
-      const recognition = new SpeechRecognitionConstructor();
+      const recognition = new SpeechRecognitionClass();
       // Single turn only - never continuously listen
       recognition.continuous = false;
       recognition.interimResults = true;

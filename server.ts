@@ -57,8 +57,9 @@ app.post('/api/gemini/generate', async (req, res) => {
         },
       });
       responseText = response.text || '';
-    } catch (primaryErr: any) {
-      console.warn('[Sahaayak Server] Primary model failed, trying fallback:', primaryErr?.message);
+    } catch (primaryErr: unknown) {
+      const primaryMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
+      console.warn('[Sahaayak Server] Primary model failed, trying fallback:', primaryMsg);
       const fallbackResponse = await ai.models.generateContent({
         model: 'gemini-3.6-flash',
         contents: prompt,
@@ -71,9 +72,10 @@ app.post('/api/gemini/generate', async (req, res) => {
     }
 
     return res.json({ text: responseText });
-  } catch (error: any) {
-    console.error('[Sahaayak Server] Gemini error:', error?.message || error);
-    return res.status(500).json({ error: error?.message || 'AI request failed' });
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : 'AI request failed';
+    console.error('[Sahaayak Server] Gemini error:', errorMsg);
+    return res.status(500).json({ error: errorMsg });
   }
 });
 

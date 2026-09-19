@@ -4,7 +4,7 @@ import { DailyItem } from '../../models';
 import { mockDailyItems } from './mockData';
 import { HelpCircle, PlayCircle, Clock, CheckCircle2 } from 'lucide-react';
 import { BriefingResult } from '../../services/gemini';
-import { saveReminderItem } from '../reminders/RemindersFeature';
+import { saveReminderItem } from '../../services/reminders/remindersStorage';
 
 interface DashboardProps {
   userName?: string;

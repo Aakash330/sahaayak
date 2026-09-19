@@ -21,9 +21,11 @@
         "./*"
       ]
     },
+    "strict": true,
+    "noImplicitAny": true,
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "server.ts"],
   "exclude": ["src/test/**/*"]
 }

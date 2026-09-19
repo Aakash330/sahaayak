@@ -19,8 +19,9 @@ export function useAsync<T>(asyncFunction: () => Promise<T>, immediate = true) {
       const response = await asyncFunction();
       setData(response);
       setStatus('success');
-    } catch (err: any) {
-      setError(err);
+    } catch (err: unknown) {
+      const errorObj = err instanceof Error ? err : new Error(String(err));
+      setError(errorObj);
       setStatus('error');
     }
   };

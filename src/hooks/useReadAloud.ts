@@ -12,14 +12,6 @@ export function useReadAloud() {
     return typeof window.speechSynthesis !== 'undefined' && window.speechSynthesis !== null;
   });
 
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.speechSynthesis === 'undefined' || !window.speechSynthesis) {
-      setSupported(false);
-    } else {
-      setSupported(true);
-    }
-  }, []);
-
   const speak = useCallback((text: string, options?: SpeakOptions) => {
     if (typeof window === 'undefined' || typeof window.speechSynthesis === 'undefined' || !window.speechSynthesis) {
       setSupported(false);

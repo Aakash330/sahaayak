@@ -6,30 +6,34 @@ export interface BriefingResult {
   items: DailyItem[];
 }
 
-export function validateBriefingResult(data: any, originalItems: DailyItem[]): BriefingResult {
+export function validateBriefingResult(data: unknown, originalItems: DailyItem[]): BriefingResult {
   if (!data || typeof data !== 'object') {
     throw new AiError('Invalid response format', 'validation');
   }
-  
-  const greeting = typeof data.greeting === 'string' ? data.greeting : 'Good morning. I have prepared your day.';
-  
-  const items = Array.isArray(data.items) ? data.items.map((item: any) => {
+
+  const record = data as Record<string, unknown>;
+  const greeting = typeof record.greeting === 'string' ? record.greeting : 'Good morning. I have prepared your day.';
+
+  const items = Array.isArray(record.items) ? record.items.map((item: unknown) => {
+    if (!item || typeof item !== 'object') return null;
+    const itemRecord = item as Record<string, unknown>;
+
     // SECURITY: Ensure we don't allow Gemini to invent items.
     // We strictly match the returned IDs against our original input IDs.
-    const original = originalItems.find(o => o.id === item.id);
+    const original = originalItems.find(o => o.id === itemRecord.id);
     if (!original) return null; // Reject invented items entirely
 
     // Safely parse priority enum
     let priority: Priority = original.priority;
-    if (['high', 'medium', 'low'].includes(item.priority)) {
-      priority = item.priority;
+    if (typeof itemRecord.priority === 'string' && ['high', 'medium', 'low'].includes(itemRecord.priority)) {
+      priority = itemRecord.priority as Priority;
     }
-    
+
     // We only allow Gemini to update 'reason' and 'suggestedAction' based on its summary
     return {
       ...original,
-      reason: typeof item.reason === 'string' ? item.reason : original.reason,
-      suggestedAction: typeof item.suggestedAction === 'string' ? item.suggestedAction : original.suggestedAction,
+      reason: typeof itemRecord.reason === 'string' ? itemRecord.reason : original.reason,
+      suggestedAction: typeof itemRecord.suggestedAction === 'string' ? itemRecord.suggestedAction : original.suggestedAction,
       priority,
     };
   }).filter(Boolean) as DailyItem[] : originalItems;

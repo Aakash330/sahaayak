@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   PageContainer,
   Card,
@@ -6,8 +6,7 @@ import {
   LoadingState,
   ErrorState,
 } from '../../components/ui';
-import { explainMessage, UnderstandResult } from '../../services/gemini';
-import { useReadAloud } from '../../hooks';
+import { useUnderstand } from './useUnderstand';
 import {
   PlayCircle,
   Volume2,
@@ -46,83 +45,20 @@ export const UnderstandFeature: React.FC<UnderstandFeatureProps> = ({
   initialText = '',
   onHelpMeDo,
 }) => {
-  const [input, setInput] = useState(initialText);
-  const [result, setResult] = useState<UnderstandResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [copied, setCopied] = useState(false);
-
-  const { speak, stop, isSpeaking, supported: ttsSupported } = useReadAloud();
-
-  useEffect(() => {
-    if (initialText && initialText.trim().length > 0) {
-      setInput(initialText);
-    }
-  }, [initialText]);
-
-  const handleExplain = async () => {
-    const trimmed = input.trim();
-    if (!trimmed) return;
-
-    // Security: Stop unreasonably long inputs to prevent token exhaustion or DoS
-    if (trimmed.length > 2000) {
-      setError(new Error('Input is too long. Please paste a shorter message under 2000 characters.'));
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setResult(null);
-    stop();
-
-    try {
-      const parsedResult = await explainMessage(trimmed);
-      setResult(parsedResult);
-    } catch (err: any) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCopy = async () => {
-    if (!result) return;
-    const textToCopy = `
-WHAT THIS MEANS
-${result.simpleExplanation}
-
-IMPORTANT DETAILS
-${result.importantDetails.map((detail) => `• ${detail}`).join('\n')}
-
-WHAT YOU NEED TO DO
-${result.whatToDo.map((step, idx) => `${idx + 1}. ${step}`).join('\n')}
-
-${result.warnings.length > 0 ? `WATCH OUT FOR\n${result.warnings.map((w) => `! ${w}`).join('\n')}` : ''}
-    `.trim();
-
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Fallback
-    }
-  };
-
-  const handleReadAloud = () => {
-    if (!result) return;
-    if (isSpeaking) {
-      stop();
-    } else {
-      const textToRead = `
-        What this means: ${result.simpleExplanation}.
-        Important details: ${result.importantDetails.join('. ')}.
-        What you need to do: ${result.whatToDo.join('. ')}.
-        ${result.warnings.length > 0 ? `Watch out for: ${result.warnings.join('. ')}` : ''}
-      `.trim();
-      speak(textToRead);
-    }
-  };
+  const {
+    input,
+    setInput,
+    result,
+    loading,
+    error,
+    clearError,
+    copied,
+    isSpeaking,
+    ttsSupported,
+    handleExplain,
+    handleCopy,
+    handleReadAloud,
+  } = useUnderstand({ initialText });
 
   return (
     <PageContainer>
@@ -218,9 +154,9 @@ ${result.warnings.length > 0 ? `WATCH OUT FOR\n${result.warnings.map((w) => `! $
         {/* Error State */}
         {error && !loading && (
           <ErrorState
-            message={error.message || 'We could not explain this message right now.'}
+            message={error || 'We could not explain this message right now.'}
             onRetry={() => {
-              setError(null);
+              clearError();
               handleExplain();
             }}
           />

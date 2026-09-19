@@ -1,87 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PageContainer, Card, Button, EmptyState } from '../../components/ui';
 import { Clock, CheckCircle2, Trash2, Calendar } from 'lucide-react';
 import { formatDate } from '../../utils';
+import { useReminders } from './useReminders';
 
-export interface SavedReminder {
-  id: string;
-  title: string;
-  category: string;
-  reason: string;
-  createdAt: string;
-  completed?: boolean;
-}
-
-const STORAGE_KEY = 'sahaayak_saved_reminders';
-
-export function getSavedReminders(): SavedReminder[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function saveReminderItem(reminder: Omit<SavedReminder, 'id' | 'createdAt'>): SavedReminder {
-  const existing = getSavedReminders();
-  const newReminder: SavedReminder = {
-    ...reminder,
-    id: `rem_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-    createdAt: new Date().toISOString(),
-    completed: false,
-  };
-  const updated = [newReminder, ...existing];
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  } catch {
-    // LocalStorage fallback
-  }
-  return newReminder;
-}
+export {
+  type SavedReminder,
+  getSavedReminders,
+  saveReminderItem,
+} from '../../services/reminders/remindersStorage';
 
 export const RemindersFeature: React.FC<{
   onStartTask?: (taskTitle: string) => void;
 }> = ({ onStartTask }) => {
-  const [reminders, setReminders] = useState<SavedReminder[]>(() => getSavedReminders());
-
-  const handleToggleDone = (id: string) => {
-    setReminders((prev) => {
-      const updated = prev.map((r) =>
-        r.id === id ? { ...r, completed: !r.completed } : r
-      );
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      } catch {
-        // Fallback
-      }
-      return updated;
-    });
-  };
-
-  const handleDelete = (id: string) => {
-    setReminders((prev) => {
-      const updated = prev.filter((r) => r.id !== id);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      } catch {
-        // Fallback
-      }
-      return updated;
-    });
-  };
-
-  const handleClearAllCompleted = () => {
-    setReminders((prev) => {
-      const updated = prev.filter((r) => !r.completed);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      } catch {
-        // Fallback
-      }
-      return updated;
-    });
-  };
+  const {
+    reminders,
+    activeCount,
+    completedCount,
+    handleToggleDone,
+    handleDelete,
+    handleClearAllCompleted,
+  } = useReminders();
 
   return (
     <PageContainer>

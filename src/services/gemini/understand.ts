@@ -1,4 +1,5 @@
 import { callGemini, AiError } from './client';
+import { sanitizePlainText, safeStringArray, MAX_INPUT_LENGTH } from '../../utils/sanitize';
 
 export interface UnderstandResult {
   simpleExplanation: string;
@@ -7,34 +8,19 @@ export interface UnderstandResult {
   warnings: string[];
 }
 
-/**
- * Sanitizes string to ensure safe plain text output and prevent HTML injection
- */
-function sanitizePlainText(val: unknown): string {
-  if (typeof val !== 'string') return '';
-  // Strip any HTML tags to guarantee plain text
-  return val.replace(/<[^>]*>?/gm, '').trim();
-}
-
-export function validateUnderstandResult(data: any): UnderstandResult {
+export function validateUnderstandResult(data: unknown): UnderstandResult {
   if (!data || typeof data !== 'object') {
     throw new AiError('Response is not an object', 'validation');
   }
 
-  const safeArray = (arr: any): string[] => {
-    if (!Array.isArray(arr)) return [];
-    return arr
-      .map((item) => (typeof item === 'string' ? sanitizePlainText(item) : ''))
-      .filter((item) => item.length > 0);
-  };
-
-  const explanation = sanitizePlainText(data.simpleExplanation);
+  const record = data as Record<string, unknown>;
+  const explanation = sanitizePlainText(record.simpleExplanation);
 
   return {
     simpleExplanation: explanation || 'Could not generate an explanation.',
-    importantDetails: safeArray(data.importantDetails),
-    whatToDo: safeArray(data.whatToDo),
-    warnings: safeArray(data.warnings),
+    importantDetails: safeStringArray(record.importantDetails),
+    whatToDo: safeStringArray(record.whatToDo),
+    warnings: safeStringArray(record.warnings),
   };
 }
 
@@ -44,8 +30,8 @@ export async function explainMessage(text: string): Promise<UnderstandResult> {
     throw new AiError('Message text cannot be empty', 'validation');
   }
 
-  if (trimmed.length > 2000) {
-    throw new AiError('Message is too long. Please keep it under 2000 characters.', 'validation');
+  if (trimmed.length > MAX_INPUT_LENGTH) {
+    throw new AiError(`Message is too long. Please keep it under ${MAX_INPUT_LENGTH} characters.`, 'validation');
   }
 
   const systemInstruction = `
@@ -83,26 +69,25 @@ export interface AnalyzedMessage {
   nextSteps: string[];
 }
 
-export function validateAnalyzedMessage(data: any): AnalyzedMessage {
+export function validateAnalyzedMessage(data: unknown): AnalyzedMessage {
   if (!data || typeof data !== 'object') {
     throw new AiError('Response is not an object', 'validation');
   }
 
+  const record = data as Record<string, unknown>;
   const validSafety = ['safe', 'warning', 'danger'];
-  const safety = validSafety.includes(data.safety) ? data.safety : 'safe';
-
-  const safeArray = (arr: any): string[] => {
-    if (!Array.isArray(arr)) return [];
-    return arr.filter((item) => typeof item === 'string' && item.trim().length > 0);
-  };
+  const safety = typeof record.safety === 'string' && validSafety.includes(record.safety)
+    ? record.safety
+    : 'safe';
 
   return {
     summary:
-      typeof data.summary === 'string' && data.summary.trim()
-        ? data.summary.trim()
+      typeof record.summary === 'string' && record.summary.trim()
+        ? record.summary.trim()
         : 'No summary provided.',
-    actionRequired: Boolean(data.actionRequired),
+    actionRequired: Boolean(record.actionRequired),
     safety: safety as 'safe' | 'warning' | 'danger',
-    nextSteps: safeArray(data.nextSteps),
+    nextSteps: safeStringArray(record.nextSteps),
   };
 }
+

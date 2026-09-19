@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { PageContainer, Card, Button } from '../../components/ui';
 import {
   Volume2,
@@ -16,9 +16,8 @@ import {
   Send,
   Info,
 } from 'lucide-react';
-import { useReadAloud, useSpeechRecognition } from '../../hooks';
+import { useVoiceCompanion } from './useVoiceCompanion';
 import {
-  interpretVoiceCommand,
   CommandInterpretation,
   AppView,
 } from '../../services/voice/commandRouter';
@@ -55,97 +54,29 @@ const SUGGESTED_COMMANDS = [
 ];
 
 export const VoiceFeature: React.FC<VoiceFeatureProps> = ({ onNavigate }) => {
-  // Read Aloud state
-  const [textToRead, setTextToRead] = useState(VOICE_PRESETS[0].text);
-  const [speed, setSpeed] = useState<number>(0.85);
-
-  // Text Alternative Command state
-  const [typedCommand, setTypedCommand] = useState('');
-  const [lastInterpretation, setLastInterpretation] =
-    useState<CommandInterpretation | null>(null);
-  const [liveAnnouncement, setLiveAnnouncement] = useState('');
-
   const {
-    speak,
-    stop: stopSpeaking,
+    textToRead,
+    setTextToRead,
+    speed,
+    typedCommand,
+    setTypedCommand,
+    lastInterpretation,
+    liveAnnouncement,
     isSpeaking,
-    supported: ttsSupported,
-  } = useReadAloud();
-
-  const handleCommandExecution = (commandText: string) => {
-    const trimmed = commandText.trim();
-    if (!trimmed) return;
-
-    const interpretation = interpretVoiceCommand(trimmed);
-    setLastInterpretation(interpretation);
-    setLiveAnnouncement(
-      `Command received: "${trimmed}". ${interpretation.spokenFeedback}`
-    );
-
-    if (onNavigate) {
-      // Allow user to hear or see before navigating, or execute
-      onNavigate(interpretation.targetView);
-    }
-  };
-
-  // Speech Recognition hook
-  const {
+    ttsSupported,
     isListening,
     transcript,
-    error: speechError,
-    supported: speechSupported,
-    startListening,
-    stopListening,
-  } = useSpeechRecognition({
-    onResult: (finalText) => {
-      handleCommandExecution(finalText);
-    },
-    onError: (err) => {
-      setLiveAnnouncement(`Voice input error: ${err}`);
-    },
-  });
-
-  const handleToggleListening = () => {
-    if (isListening) {
-      stopListening();
-      setLiveAnnouncement('Stopped listening.');
-    } else {
-      stopSpeaking();
-      startListening();
-      setLiveAnnouncement('Listening... Speak now.');
-    }
-  };
-
-  const handlePlayReadAloud = () => {
-    if (!textToRead.trim()) return;
-    if (isSpeaking) {
-      stopSpeaking();
-      setLiveAnnouncement('Stopped speaking.');
-    } else {
-      speak(textToRead, { rate: speed });
-      setLiveAnnouncement('Started reading aloud.');
-    }
-  };
-
-  const handleStopSpeaking = () => {
-    stopSpeaking();
-    setLiveAnnouncement('Stopped speaking.');
-  };
-
-  const handleSpeedChange = (newSpeed: number) => {
-    setSpeed(newSpeed);
-    if (isSpeaking) {
-      stopSpeaking();
-      speak(textToRead, { rate: newSpeed });
-    }
-  };
-
-  const handleTextSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!typedCommand.trim()) return;
-    handleCommandExecution(typedCommand);
-    setTypedCommand('');
-  };
+    speechError,
+    speechSupported,
+    handleCommandExecution,
+    handleToggleListening,
+    handlePlayReadAloud,
+    handleStopSpeaking,
+    handleSpeedChange,
+    handleTextSubmit,
+    handleClearText,
+    handleSelectPreset,
+  } = useVoiceCompanion({ onNavigate });
 
   return (
     <PageContainer>
@@ -475,10 +406,7 @@ export const VoiceFeature: React.FC<VoiceFeatureProps> = ({ onNavigate }) => {
 
               <Button
                 variant="back"
-                onClick={() => {
-                  stopSpeaking();
-                  setTextToRead('');
-                }}
+                onClick={handleClearText}
                 icon={RotateCcw}
                 disabled={!textToRead}
                 aria-label="Clear Text"
@@ -516,11 +444,7 @@ export const VoiceFeature: React.FC<VoiceFeatureProps> = ({ onNavigate }) => {
                 type="button"
                 aria-label={`Load preset: ${preset.title}`}
                 className="space-y-3 p-5 sm:p-6 rounded-2xl border-2 border-stone-200/90 shadow-[0_2px_14px_rgba(40,30,20,0.04)] hover:border-[#1E3A5F]/50 hover:shadow-md focus-visible:ring-4 focus-visible:ring-[#1E3A5F] focus-visible:outline-hidden transition-all cursor-pointer bg-white text-left"
-                onClick={() => {
-                  stopSpeaking();
-                  setTextToRead(preset.text);
-                  setLiveAnnouncement(`Loaded preset: ${preset.title}`);
-                }}
+                onClick={() => handleSelectPreset(preset)}
               >
                 <div className="flex items-center gap-2.5 text-[#1E3A5F] font-bold font-serif text-xl">
                   <IconComp className="w-5 h-5 shrink-0 text-amber-600" aria-hidden="true" />
