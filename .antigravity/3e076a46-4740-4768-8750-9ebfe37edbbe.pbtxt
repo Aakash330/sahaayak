@@ -1,0 +1,603 @@
+steps {
+  type: CORTEX_STEP_TYPE_USER_INPUT
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797510
+      nanos: 816244000
+    }
+    source: CORTEX_STEP_SOURCE_SYSTEM
+    completed_at {
+      seconds: 1789797510
+      nanos: 816244000
+    }
+  }
+  user_input {
+    user_response: "User prompt: You are a senior frontend architect and security-focused engineer.\n\nI am building a hackathon MVP called:\n\nSAHAAYAK \342\200\224 AI Daily Life Companion\n\nProblem:\nMost digital tools are designed for younger, tech-savvy users. Senior citizens can feel overwhelmed, confused, or vulnerable when dealing with digital tasks.\n\nSahaayak is a GenAI-powered web companion that helps seniors:\n\nNOTICE \342\206\222 UNDERSTAND \342\206\222 PLAN \342\206\222 DO\n\nThe product should NOT look like a generic AI chatbot.\n\nThe main experience should be a proactive \"My Day\" dashboard that tells the senior what needs attention and then helps them understand and complete those tasks.\n\nCORE FEATURES:\n\n1. My Day\n   - Proactive daily briefing\n   - Important things requiring attention\n   - Priorities\n   - Suggested actions\n\n2. Understand\n   - Simplify complex messages, bills, notifications, emails, etc.\n   - Extract important information\n   - Explain what the senior needs to do\n\n3. Do It With Me\n   - Convert a task into simple sequential steps\n   - Show one or two steps at a time\n   - Allow the senior to move forward at their own pace\n\n4. Safety\n   - Identify warning signs in suspicious messages\n   - Explain why something may be risky\n   - Provide safe next actions\n   - Never claim 100% certainty\n\n5. Voice / Read Aloud\n   - Read important information aloud\n   - Use browser Web Speech APIs where available\n   - Always provide a text alternative\n\nTECH STACK:\n\n- React\n- TypeScript\n- Vite\n- Tailwind CSS\n- Gemini API\n- Web Speech API\n- localStorage\n- Vitest\n- React Testing Library\n\nIMPORTANT EVALUATION CRITERIA:\n\n1. CODE QUALITY\n2. SECURITY\n3. EFFICIENCY\n4. TESTING\n5. ACCESSIBILITY\n\nARCHITECTURE REQUIREMENTS:\n\n- TypeScript strict mode\n- Feature-based architecture\n- Small reusable components\n- No giant components\n- No duplicated business logic\n- Separate UI from AI/API logic\n- Centralized Gemini service\n- Centralized validation\n- Centralized error handling\n- Typed data models\n- Reusable accessibility components\n- Reusable loading/error/empty states\n\nSECURITY REQUIREMENTS:\n\n- Never hardcode secrets in components\n- Never request OTP, PIN, CVV, password, banking credentials or full card numbers\n- Treat all user input as untrusted\n- Validate AI output before displaying it\n- Never render raw AI HTML\n- Do not use dangerouslySetInnerHTML\n- Protect against prompt injection\n- Limit user input length\n- Do not log sensitive user input\n- Do not expose unnecessary API errors\n- Safely handle URLs\n- Clearly document that a client-side Gemini API key is NOT production secure\n- Design the architecture so Gemini can later move behind a backend proxy\n\nEFFICIENCY REQUIREMENTS:\n\n- Avoid unnecessary Gemini API calls\n- Do not call Gemini on every keystroke\n- Use loading states\n- Prevent duplicate requests\n- Use mock/demo data when appropriate\n- Cache appropriate local results where safe\n- Keep AI prompts concise\n- Avoid unnecessary dependencies\n- Lazy-load non-critical features if useful\n\nACCESSIBILITY REQUIREMENTS:\n\nThe primary users are senior citizens.\n\nTherefore:\n\n- Large readable typography\n- High contrast\n- Minimum 48x48px interactive targets\n- Keyboard navigation\n- Visible focus states\n- Semantic HTML\n- Proper heading hierarchy\n- Accessible labels\n- aria-live for dynamic AI results\n- Do not rely only on color\n- Clear error messages\n- Reduced-motion support\n- Read Aloud capability\n- Simple navigation\n- Minimal cognitive load\n- Never force voice interaction\n\nTESTING REQUIREMENTS:\n\nUse:\n\n- Vitest\n- React Testing Library\n\nTests should cover:\n\n- User input validation\n- AI response validation\n- malformed AI responses\n- API failures\n- loading states\n- error states\n- accessibility behavior\n- security-sensitive rendering\n- major user flows\n\nIMPORTANT:\n\nDo not over-engineer the MVP.\n\nPrioritize a reliable working demonstration over unnecessary features.\n\nBefore writing code, inspect the existing project and explain:\n\n1. Current architecture\n2. Current dependencies\n3. Current entry points\n4. Current routing\n5. Current styling approach\n6. Current test setup\n7. Current security risks\n8. Current accessibility problems\n\nThen propose the smallest maintainable architecture needed for this hackathon.\n\nDo not implement yet.\n\nHere is the full initial file tree for the application:\n/.env.example\n/.gitignore\n/index.html\n/metadata.json\n/package.json\n/public/assets/aistudio/.gitignore\n/src/App.tsx\n/src/index.css\n/src/main.tsx\n/tsconfig.json\n/vite.config.ts\n\nThe following dependencies are installed:\n@google/genai: ^2.4.0\n@tailwindcss/vite: ^4.3.3\n@vitejs/plugin-react: ^6.1.1\ndotenv: ^17.2.3\nexpress: ^4.21.2\nlucide-react: ^0.546.0\nmotion: ^12.23.24\nreact: ^19.0.1\nreact-dom: ^19.0.1\nvite: ^8.3.0\n\nThe following devDependencies are installed:\n@types/express: ^4.17.21\n@types/node: ^22.14.0\n@types/react: ^19.3.0\n@types/react-dom: ^19.3.0\nautoprefixer: ^10.4.21\nesbuild: ^0.25.0\ntailwindcss: ^4.3.3\ntsx: ^4.21.0\ntypescript: ^7.0.2\n\nKey file contents:\n\n--- /.env.example ---\n```\n# GEMINI_API_KEY: Required for Gemini AI API calls.\n# AI Studio automatically injects this at runtime from user secrets.\n# Users configure this via the Secrets panel in the AI Studio UI.\nGEMINI_API_KEY=\"MY_GEMINI_API_KEY\"\n\n# APP_URL: The URL where this applet is hosted.\n# AI Studio automatically injects this at runtime with the Cloud Run service URL.\n# Used for self-referential links, OAuth callbacks, and API endpoints.\nAPP_URL=\"MY_APP_URL\"\n\n```\n\n--- /index.html ---\n```html\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>My Google AI Studio App</title>\n    <meta name=\"description\" content=\"An application built with Google AI Studio.\" />\n    <meta property=\"og:title\" content=\"My Google AI Studio App\" />\n    <meta property=\"og:description\" content=\"An application built with Google AI Studio.\" />\n    <meta property=\"og:type\" content=\"website\" />\n    <meta name=\"twitter:card\" content=\"summary_large_image\" />\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/src/main.tsx\"></script>\n  </body>\n</html>\n\n\n```\n\n--- /metadata.json ---\n```json\n{\n  \"name\": \"\",\n  \"description\": \"\",\n  \"requestFramePermissions\": [],\n  \"majorCapabilities\": [\"MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API\"]\n}\n\n```\n\n--- /src/App.tsx ---\n```typescript\n/**\n * @license\n * SPDX-License-Identifier: Apache-2.0\n */\n\nexport default function App() {\n  return <div></div>;\n}\n\n```\n\n--- /src/index.css ---\n```css\n@import \"tailwindcss\";\n\n```\n\n--- /src/main.tsx ---\n```typescript\nimport {StrictMode} from \'react\';\nimport {createRoot} from \'react-dom/client\';\nimport App from \'./App.tsx\';\nimport \'./index.css\';\n\ncreateRoot(document.getElementById(\'root\')!).render(\n  <StrictMode>\n    <App />\n  </StrictMode>,\n);\n\n```\n\n--- /tsconfig.json ---\n```json\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"experimentalDecorators\": true,\n    \"useDefineForClassFields\": false,\n    \"module\": \"ESNext\",\n    \"types\": [\"vite/client\"],\n    \"lib\": [\n      \"ES2022\",\n      \"DOM\",\n      \"DOM.Iterable\"\n    ],\n    \"skipLibCheck\": true,\n    \"moduleResolution\": \"bundler\",\n    \"isolatedModules\": true,\n    \"moduleDetection\": \"force\",\n    \"allowJs\": true,\n    \"jsx\": \"react-jsx\",\n    \"paths\": {\n      \"@/*\": [\n        \"./*\"\n      ]\n    },\n    \"allowImportingTsExtensions\": true,\n    \"noEmit\": true\n  }\n}\n\n```\n\n--- /vite.config.ts ---\n```typescript\nimport tailwindcss from \'@tailwindcss/vite\';\nimport react from \'@vitejs/plugin-react\';\nimport path from \'path\';\nimport {defineConfig} from \'vite\';\n\nexport default defineConfig(() => {\n  return {\n    plugins: [react(), tailwindcss()],\n    resolve: {\n      alias: {\n        \'@\': path.resolve(__dirname, \'.\'),\n      },\n    },\n    server: {\n      // HMR is disabled in AI Studio via DISABLE_HMR env var.\n      // Do not modify\303\242\302\200\302\224file watching is disabled to prevent flickering during agent edits.\n      hmr: process.env.DISABLE_HMR !== \'true\',\n      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.\n      watch: process.env.DISABLE_HMR === \'true\' ? null : {},\n    },\n  };\n});\n\n```"
+    items {
+      text: "User prompt: You are a senior frontend architect and security-focused engineer.\n\nI am building a hackathon MVP called:\n\nSAHAAYAK \342\200\224 AI Daily Life Companion\n\nProblem:\nMost digital tools are designed for younger, tech-savvy users. Senior citizens can feel overwhelmed, confused, or vulnerable when dealing with digital tasks.\n\nSahaayak is a GenAI-powered web companion that helps seniors:\n\nNOTICE \342\206\222 UNDERSTAND \342\206\222 PLAN \342\206\222 DO\n\nThe product should NOT look like a generic AI chatbot.\n\nThe main experience should be a proactive \"My Day\" dashboard that tells the senior what needs attention and then helps them understand and complete those tasks.\n\nCORE FEATURES:\n\n1. My Day\n   - Proactive daily briefing\n   - Important things requiring attention\n   - Priorities\n   - Suggested actions\n\n2. Understand\n   - Simplify complex messages, bills, notifications, emails, etc.\n   - Extract important information\n   - Explain what the senior needs to do\n\n3. Do It With Me\n   - Convert a task into simple sequential steps\n   - Show one or two steps at a time\n   - Allow the senior to move forward at their own pace\n\n4. Safety\n   - Identify warning signs in suspicious messages\n   - Explain why something may be risky\n   - Provide safe next actions\n   - Never claim 100% certainty\n\n5. Voice / Read Aloud\n   - Read important information aloud\n   - Use browser Web Speech APIs where available\n   - Always provide a text alternative\n\nTECH STACK:\n\n- React\n- TypeScript\n- Vite\n- Tailwind CSS\n- Gemini API\n- Web Speech API\n- localStorage\n- Vitest\n- React Testing Library\n\nIMPORTANT EVALUATION CRITERIA:\n\n1. CODE QUALITY\n2. SECURITY\n3. EFFICIENCY\n4. TESTING\n5. ACCESSIBILITY\n\nARCHITECTURE REQUIREMENTS:\n\n- TypeScript strict mode\n- Feature-based architecture\n- Small reusable components\n- No giant components\n- No duplicated business logic\n- Separate UI from AI/API logic\n- Centralized Gemini service\n- Centralized validation\n- Centralized error handling\n- Typed data models\n- Reusable accessibility components\n- Reusable loading/error/empty states\n\nSECURITY REQUIREMENTS:\n\n- Never hardcode secrets in components\n- Never request OTP, PIN, CVV, password, banking credentials or full card numbers\n- Treat all user input as untrusted\n- Validate AI output before displaying it\n- Never render raw AI HTML\n- Do not use dangerouslySetInnerHTML\n- Protect against prompt injection\n- Limit user input length\n- Do not log sensitive user input\n- Do not expose unnecessary API errors\n- Safely handle URLs\n- Clearly document that a client-side Gemini API key is NOT production secure\n- Design the architecture so Gemini can later move behind a backend proxy\n\nEFFICIENCY REQUIREMENTS:\n\n- Avoid unnecessary Gemini API calls\n- Do not call Gemini on every keystroke\n- Use loading states\n- Prevent duplicate requests\n- Use mock/demo data when appropriate\n- Cache appropriate local results where safe\n- Keep AI prompts concise\n- Avoid unnecessary dependencies\n- Lazy-load non-critical features if useful\n\nACCESSIBILITY REQUIREMENTS:\n\nThe primary users are senior citizens.\n\nTherefore:\n\n- Large readable typography\n- High contrast\n- Minimum 48x48px interactive targets\n- Keyboard navigation\n- Visible focus states\n- Semantic HTML\n- Proper heading hierarchy\n- Accessible labels\n- aria-live for dynamic AI results\n- Do not rely only on color\n- Clear error messages\n- Reduced-motion support\n- Read Aloud capability\n- Simple navigation\n- Minimal cognitive load\n- Never force voice interaction\n\nTESTING REQUIREMENTS:\n\nUse:\n\n- Vitest\n- React Testing Library\n\nTests should cover:\n\n- User input validation\n- AI response validation\n- malformed AI responses\n- API failures\n- loading states\n- error states\n- accessibility behavior\n- security-sensitive rendering\n- major user flows\n\nIMPORTANT:\n\nDo not over-engineer the MVP.\n\nPrioritize a reliable working demonstration over unnecessary features.\n\nBefore writing code, inspect the existing project and explain:\n\n1. Current architecture\n2. Current dependencies\n3. Current entry points\n4. Current routing\n5. Current styling approach\n6. Current test setup\n7. Current security risks\n8. Current accessibility problems\n\nThen propose the smallest maintainable architecture needed for this hackathon.\n\nDo not implement yet.\n\nHere is the full initial file tree for the application:\n/.env.example\n/.gitignore\n/index.html\n/metadata.json\n/package.json\n/public/assets/aistudio/.gitignore\n/src/App.tsx\n/src/index.css\n/src/main.tsx\n/tsconfig.json\n/vite.config.ts\n\nThe following dependencies are installed:\n@google/genai: ^2.4.0\n@tailwindcss/vite: ^4.3.3\n@vitejs/plugin-react: ^6.1.1\ndotenv: ^17.2.3\nexpress: ^4.21.2\nlucide-react: ^0.546.0\nmotion: ^12.23.24\nreact: ^19.0.1\nreact-dom: ^19.0.1\nvite: ^8.3.0\n\nThe following devDependencies are installed:\n@types/express: ^4.17.21\n@types/node: ^22.14.0\n@types/react: ^19.3.0\n@types/react-dom: ^19.3.0\nautoprefixer: ^10.4.21\nesbuild: ^0.25.0\ntailwindcss: ^4.3.3\ntsx: ^4.21.0\ntypescript: ^7.0.2\n\nKey file contents:\n\n--- /.env.example ---\n```\n# GEMINI_API_KEY: Required for Gemini AI API calls.\n# AI Studio automatically injects this at runtime from user secrets.\n# Users configure this via the Secrets panel in the AI Studio UI.\nGEMINI_API_KEY=\"MY_GEMINI_API_KEY\"\n\n# APP_URL: The URL where this applet is hosted.\n# AI Studio automatically injects this at runtime with the Cloud Run service URL.\n# Used for self-referential links, OAuth callbacks, and API endpoints.\nAPP_URL=\"MY_APP_URL\"\n\n```\n\n--- /index.html ---\n```html\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>My Google AI Studio App</title>\n    <meta name=\"description\" content=\"An application built with Google AI Studio.\" />\n    <meta property=\"og:title\" content=\"My Google AI Studio App\" />\n    <meta property=\"og:description\" content=\"An application built with Google AI Studio.\" />\n    <meta property=\"og:type\" content=\"website\" />\n    <meta name=\"twitter:card\" content=\"summary_large_image\" />\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/src/main.tsx\"></script>\n  </body>\n</html>\n\n\n```\n\n--- /metadata.json ---\n```json\n{\n  \"name\": \"\",\n  \"description\": \"\",\n  \"requestFramePermissions\": [],\n  \"majorCapabilities\": [\"MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API\"]\n}\n\n```\n\n--- /src/App.tsx ---\n```typescript\n/**\n * @license\n * SPDX-License-Identifier: Apache-2.0\n */\n\nexport default function App() {\n  return <div></div>;\n}\n\n```\n\n--- /src/index.css ---\n```css\n@import \"tailwindcss\";\n\n```\n\n--- /src/main.tsx ---\n```typescript\nimport {StrictMode} from \'react\';\nimport {createRoot} from \'react-dom/client\';\nimport App from \'./App.tsx\';\nimport \'./index.css\';\n\ncreateRoot(document.getElementById(\'root\')!).render(\n  <StrictMode>\n    <App />\n  </StrictMode>,\n);\n\n```\n\n--- /tsconfig.json ---\n```json\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"experimentalDecorators\": true,\n    \"useDefineForClassFields\": false,\n    \"module\": \"ESNext\",\n    \"types\": [\"vite/client\"],\n    \"lib\": [\n      \"ES2022\",\n      \"DOM\",\n      \"DOM.Iterable\"\n    ],\n    \"skipLibCheck\": true,\n    \"moduleResolution\": \"bundler\",\n    \"isolatedModules\": true,\n    \"moduleDetection\": \"force\",\n    \"allowJs\": true,\n    \"jsx\": \"react-jsx\",\n    \"paths\": {\n      \"@/*\": [\n        \"./*\"\n      ]\n    },\n    \"allowImportingTsExtensions\": true,\n    \"noEmit\": true\n  }\n}\n\n```\n\n--- /vite.config.ts ---\n```typescript\nimport tailwindcss from \'@tailwindcss/vite\';\nimport react from \'@vitejs/plugin-react\';\nimport path from \'path\';\nimport {defineConfig} from \'vite\';\n\nexport default defineConfig(() => {\n  return {\n    plugins: [react(), tailwindcss()],\n    resolve: {\n      alias: {\n        \'@\': path.resolve(__dirname, \'.\'),\n      },\n    },\n    server: {\n      // HMR is disabled in AI Studio via DISABLE_HMR env var.\n      // Do not modify\303\242\302\200\302\224file watching is disabled to prevent flickering during agent edits.\n      hmr: process.env.DISABLE_HMR !== \'true\',\n      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.\n      watch: process.env.DISABLE_HMR === \'true\' ? null : {},\n    },\n  };\n});\n\n```"
+    }
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_USER_INPUT
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797512
+      nanos: 826520088
+    }
+    source: CORTEX_STEP_SOURCE_USER_EXPLICIT
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 1
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+  }
+  user_input {
+    user_response: "You are a senior frontend architect and security-focused engineer.\n\nI am building a hackathon MVP called:\n\nSAHAAYAK \342\200\224 AI Daily Life Companion\n\nProblem:\nMost digital tools are designed for younger, tech-savvy users. Senior citizens can feel overwhelmed, confused, or vulnerable when dealing with digital tasks.\n\nSahaayak is a GenAI-powered web companion that helps seniors:\n\nNOTICE \342\206\222 UNDERSTAND \342\206\222 PLAN \342\206\222 DO\n\nThe product should NOT look like a generic AI chatbot.\n\nThe main experience should be a proactive \"My Day\" dashboard that tells the senior what needs attention and then helps them understand and complete those tasks.\n\nCORE FEATURES:\n\n1. My Day\n   - Proactive daily briefing\n   - Important things requiring attention\n   - Priorities\n   - Suggested actions\n\n2. Understand\n   - Simplify complex messages, bills, notifications, emails, etc.\n   - Extract important information\n   - Explain what the senior needs to do\n\n3. Do It With Me\n   - Convert a task into simple sequential steps\n   - Show one or two steps at a time\n   - Allow the senior to move forward at their own pace\n\n4. Safety\n   - Identify warning signs in suspicious messages\n   - Explain why something may be risky\n   - Provide safe next actions\n   - Never claim 100% certainty\n\n5. Voice / Read Aloud\n   - Read important information aloud\n   - Use browser Web Speech APIs where available\n   - Always provide a text alternative\n\nTECH STACK:\n\n- React\n- TypeScript\n- Vite\n- Tailwind CSS\n- Gemini API\n- Web Speech API\n- localStorage\n- Vitest\n- React Testing Library\n\nIMPORTANT EVALUATION CRITERIA:\n\n1. CODE QUALITY\n2. SECURITY\n3. EFFICIENCY\n4. TESTING\n5. ACCESSIBILITY\n\nARCHITECTURE REQUIREMENTS:\n\n- TypeScript strict mode\n- Feature-based architecture\n- Small reusable components\n- No giant components\n- No duplicated business logic\n- Separate UI from AI/API logic\n- Centralized Gemini service\n- Centralized validation\n- Centralized error handling\n- Typed data models\n- Reusable accessibility components\n- Reusable loading/error/empty states\n\nSECURITY REQUIREMENTS:\n\n- Never hardcode secrets in components\n- Never request OTP, PIN, CVV, password, banking credentials or full card numbers\n- Treat all user input as untrusted\n- Validate AI output before displaying it\n- Never render raw AI HTML\n- Do not use dangerouslySetInnerHTML\n- Protect against prompt injection\n- Limit user input length\n- Do not log sensitive user input\n- Do not expose unnecessary API errors\n- Safely handle URLs\n- Clearly document that a client-side Gemini API key is NOT production secure\n- Design the architecture so Gemini can later move behind a backend proxy\n\nEFFICIENCY REQUIREMENTS:\n\n- Avoid unnecessary Gemini API calls\n- Do not call Gemini on every keystroke\n- Use loading states\n- Prevent duplicate requests\n- Use mock/demo data when appropriate\n- Cache appropriate local results where safe\n- Keep AI prompts concise\n- Avoid unnecessary dependencies\n- Lazy-load non-critical features if useful\n\nACCESSIBILITY REQUIREMENTS:\n\nThe primary users are senior citizens.\n\nTherefore:\n\n- Large readable typography\n- High contrast\n- Minimum 48x48px interactive targets\n- Keyboard navigation\n- Visible focus states\n- Semantic HTML\n- Proper heading hierarchy\n- Accessible labels\n- aria-live for dynamic AI results\n- Do not rely only on color\n- Clear error messages\n- Reduced-motion support\n- Read Aloud capability\n- Simple navigation\n- Minimal cognitive load\n- Never force voice interaction\n\nTESTING REQUIREMENTS:\n\nUse:\n\n- Vitest\n- React Testing Library\n\nTests should cover:\n\n- User input validation\n- AI response validation\n- malformed AI responses\n- API failures\n- loading states\n- error states\n- accessibility behavior\n- security-sensitive rendering\n- major user flows\n\nIMPORTANT:\n\nDo not over-engineer the MVP.\n\nPrioritize a reliable working demonstration over unnecessary features.\n\nBefore writing code, inspect the existing project and explain:\n\n1. Current architecture\n2. Current dependencies\n3. Current entry points\n4. Current routing\n5. Current styling approach\n6. Current test setup\n7. Current security risks\n8. Current accessibility problems\n\nThen propose the smallest maintainable architecture needed for this hackathon.\n\nDo not implement yet."
+    items {
+      text: "You are a senior frontend architect and security-focused engineer.\n\nI am building a hackathon MVP called:\n\nSAHAAYAK \342\200\224 AI Daily Life Companion\n\nProblem:\nMost digital tools are designed for younger, tech-savvy users. Senior citizens can feel overwhelmed, confused, or vulnerable when dealing with digital tasks.\n\nSahaayak is a GenAI-powered web companion that helps seniors:\n\nNOTICE \342\206\222 UNDERSTAND \342\206\222 PLAN \342\206\222 DO\n\nThe product should NOT look like a generic AI chatbot.\n\nThe main experience should be a proactive \"My Day\" dashboard that tells the senior what needs attention and then helps them understand and complete those tasks.\n\nCORE FEATURES:\n\n1. My Day\n   - Proactive daily briefing\n   - Important things requiring attention\n   - Priorities\n   - Suggested actions\n\n2. Understand\n   - Simplify complex messages, bills, notifications, emails, etc.\n   - Extract important information\n   - Explain what the senior needs to do\n\n3. Do It With Me\n   - Convert a task into simple sequential steps\n   - Show one or two steps at a time\n   - Allow the senior to move forward at their own pace\n\n4. Safety\n   - Identify warning signs in suspicious messages\n   - Explain why something may be risky\n   - Provide safe next actions\n   - Never claim 100% certainty\n\n5. Voice / Read Aloud\n   - Read important information aloud\n   - Use browser Web Speech APIs where available\n   - Always provide a text alternative\n\nTECH STACK:\n\n- React\n- TypeScript\n- Vite\n- Tailwind CSS\n- Gemini API\n- Web Speech API\n- localStorage\n- Vitest\n- React Testing Library\n\nIMPORTANT EVALUATION CRITERIA:\n\n1. CODE QUALITY\n2. SECURITY\n3. EFFICIENCY\n4. TESTING\n5. ACCESSIBILITY\n\nARCHITECTURE REQUIREMENTS:\n\n- TypeScript strict mode\n- Feature-based architecture\n- Small reusable components\n- No giant components\n- No duplicated business logic\n- Separate UI from AI/API logic\n- Centralized Gemini service\n- Centralized validation\n- Centralized error handling\n- Typed data models\n- Reusable accessibility components\n- Reusable loading/error/empty states\n\nSECURITY REQUIREMENTS:\n\n- Never hardcode secrets in components\n- Never request OTP, PIN, CVV, password, banking credentials or full card numbers\n- Treat all user input as untrusted\n- Validate AI output before displaying it\n- Never render raw AI HTML\n- Do not use dangerouslySetInnerHTML\n- Protect against prompt injection\n- Limit user input length\n- Do not log sensitive user input\n- Do not expose unnecessary API errors\n- Safely handle URLs\n- Clearly document that a client-side Gemini API key is NOT production secure\n- Design the architecture so Gemini can later move behind a backend proxy\n\nEFFICIENCY REQUIREMENTS:\n\n- Avoid unnecessary Gemini API calls\n- Do not call Gemini on every keystroke\n- Use loading states\n- Prevent duplicate requests\n- Use mock/demo data when appropriate\n- Cache appropriate local results where safe\n- Keep AI prompts concise\n- Avoid unnecessary dependencies\n- Lazy-load non-critical features if useful\n\nACCESSIBILITY REQUIREMENTS:\n\nThe primary users are senior citizens.\n\nTherefore:\n\n- Large readable typography\n- High contrast\n- Minimum 48x48px interactive targets\n- Keyboard navigation\n- Visible focus states\n- Semantic HTML\n- Proper heading hierarchy\n- Accessible labels\n- aria-live for dynamic AI results\n- Do not rely only on color\n- Clear error messages\n- Reduced-motion support\n- Read Aloud capability\n- Simple navigation\n- Minimal cognitive load\n- Never force voice interaction\n\nTESTING REQUIREMENTS:\n\nUse:\n\n- Vitest\n- React Testing Library\n\nTests should cover:\n\n- User input validation\n- AI response validation\n- malformed AI responses\n- API failures\n- loading states\n- error states\n- accessibility behavior\n- security-sensitive rendering\n- major user flows\n\nIMPORTANT:\n\nDo not over-engineer the MVP.\n\nPrioritize a reliable working demonstration over unnecessary features.\n\nBefore writing code, inspect the existing project and explain:\n\n1. Current architecture\n2. Current dependencies\n3. Current entry points\n4. Current routing\n5. Current styling approach\n6. Current test setup\n7. Current security risks\n8. Current accessibility problems\n\nThen propose the smallest maintainable architecture needed for this hackathon.\n\nDo not implement yet."
+    }
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_PLANNER_RESPONSE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797512
+      nanos: 826985008
+    }
+    source: CORTEX_STEP_SOURCE_MODEL
+    viewable_at {
+      seconds: 1789797512
+      nanos: 918851142
+    }
+    finished_generating_at {
+      seconds: 1789797512
+      nanos: 918850432
+    }
+    completed_at {
+      seconds: 1789797512
+      nanos: 918850432
+    }
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 2
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+    started_at {
+      seconds: 1789797512
+      nanos: 918850432
+    }
+  }
+  planner_response {
+    stop_reason: STOP_REASON_CLIENT_STREAM_ERROR
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_ERROR_MESSAGE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797516
+      nanos: 920226750
+    }
+    source: CORTEX_STEP_SOURCE_SYSTEM
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 3
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+  }
+  error_message {
+    error {
+      user_error_message: "Encountered retryable error from model provider: Agent execution terminated due to error."
+      short_error: "generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash: generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash"
+      error_id: "3e076a46-4740-4768-8750-9ebfe37edbbe-3"
+      error_code: 8
+    }
+    should_show_model: true
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_PLANNER_RESPONSE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797516
+      nanos: 920519930
+    }
+    source: CORTEX_STEP_SOURCE_MODEL
+    viewable_at {
+      seconds: 1789797516
+      nanos: 965514403
+    }
+    finished_generating_at {
+      seconds: 1789797516
+      nanos: 965513913
+    }
+    completed_at {
+      seconds: 1789797516
+      nanos: 965513913
+    }
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 4
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+    started_at {
+      seconds: 1789797516
+      nanos: 965513913
+    }
+  }
+  planner_response {
+    stop_reason: STOP_REASON_CLIENT_STREAM_ERROR
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_ERROR_MESSAGE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797524
+      nanos: 426219029
+    }
+    source: CORTEX_STEP_SOURCE_SYSTEM
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 5
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+  }
+  error_message {
+    error {
+      user_error_message: "Encountered retryable error from model provider: Agent execution terminated due to error."
+      short_error: "generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash: generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash"
+      error_id: "3e076a46-4740-4768-8750-9ebfe37edbbe-5"
+      error_code: 8
+    }
+    should_show_model: true
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_PLANNER_RESPONSE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797524
+      nanos: 426528539
+    }
+    source: CORTEX_STEP_SOURCE_MODEL
+    viewable_at {
+      seconds: 1789797524
+      nanos: 468606408
+    }
+    finished_generating_at {
+      seconds: 1789797524
+      nanos: 468605678
+    }
+    completed_at {
+      seconds: 1789797524
+      nanos: 468605678
+    }
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 6
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+    started_at {
+      seconds: 1789797524
+      nanos: 468605678
+    }
+  }
+  planner_response {
+    stop_reason: STOP_REASON_CLIENT_STREAM_ERROR
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_ERROR_MESSAGE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797535
+      nanos: 27520126
+    }
+    source: CORTEX_STEP_SOURCE_SYSTEM
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 7
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+  }
+  error_message {
+    error {
+      user_error_message: "Encountered retryable error from model provider: Agent execution terminated due to error."
+      short_error: "generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash: generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash"
+      error_id: "3e076a46-4740-4768-8750-9ebfe37edbbe-7"
+      error_code: 8
+    }
+    should_show_model: true
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_PLANNER_RESPONSE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797535
+      nanos: 27868256
+    }
+    source: CORTEX_STEP_SOURCE_MODEL
+    viewable_at {
+      seconds: 1789797535
+      nanos: 105799688
+    }
+    finished_generating_at {
+      seconds: 1789797535
+      nanos: 105798858
+    }
+    completed_at {
+      seconds: 1789797535
+      nanos: 105798858
+    }
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 8
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+    started_at {
+      seconds: 1789797535
+      nanos: 105798858
+    }
+  }
+  planner_response {
+    stop_reason: STOP_REASON_CLIENT_STREAM_ERROR
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_ERROR_MESSAGE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797554
+      nanos: 716877713
+    }
+    source: CORTEX_STEP_SOURCE_SYSTEM
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 9
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+  }
+  error_message {
+    error {
+      user_error_message: "Encountered retryable error from model provider: Agent execution terminated due to error."
+      short_error: "generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash: generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash"
+      error_id: "3e076a46-4740-4768-8750-9ebfe37edbbe-9"
+      error_code: 8
+    }
+    should_show_model: true
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_PLANNER_RESPONSE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797554
+      nanos: 717214463
+    }
+    source: CORTEX_STEP_SOURCE_MODEL
+    viewable_at {
+      seconds: 1789797554
+      nanos: 753930767
+    }
+    finished_generating_at {
+      seconds: 1789797554
+      nanos: 753930197
+    }
+    completed_at {
+      seconds: 1789797554
+      nanos: 753930197
+    }
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 10
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+    started_at {
+      seconds: 1789797554
+      nanos: 753930197
+    }
+  }
+  planner_response {
+    stop_reason: STOP_REASON_CLIENT_STREAM_ERROR
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_ERROR_MESSAGE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797618
+      nanos: 657275530
+    }
+    source: CORTEX_STEP_SOURCE_SYSTEM
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 11
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+  }
+  error_message {
+    error {
+      user_error_message: "Encountered retryable error from model provider: Agent execution terminated due to error."
+      short_error: "generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash: generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash"
+      error_id: "3e076a46-4740-4768-8750-9ebfe37edbbe-11"
+      error_code: 8
+    }
+    should_show_model: true
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_PLANNER_RESPONSE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797618
+      nanos: 657659370
+    }
+    source: CORTEX_STEP_SOURCE_MODEL
+    viewable_at {
+      seconds: 1789797618
+      nanos: 735911294
+    }
+    finished_generating_at {
+      seconds: 1789797618
+      nanos: 735910774
+    }
+    completed_at {
+      seconds: 1789797618
+      nanos: 735910774
+    }
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 12
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+    started_at {
+      seconds: 1789797618
+      nanos: 735910774
+    }
+  }
+  planner_response {
+    stop_reason: STOP_REASON_CLIENT_STREAM_ERROR
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_ERROR_MESSAGE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797697
+      nanos: 67198343
+    }
+    source: CORTEX_STEP_SOURCE_SYSTEM
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 13
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+  }
+  error_message {
+    error {
+      user_error_message: "Encountered retryable error from model provider: Agent execution terminated due to error."
+      short_error: "generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash: generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash"
+      error_id: "3e076a46-4740-4768-8750-9ebfe37edbbe-13"
+      error_code: 8
+    }
+    should_show_model: true
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_PLANNER_RESPONSE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797697
+      nanos: 67598353
+    }
+    source: CORTEX_STEP_SOURCE_MODEL
+    viewable_at {
+      seconds: 1789797697
+      nanos: 144571557
+    }
+    finished_generating_at {
+      seconds: 1789797697
+      nanos: 144570907
+    }
+    completed_at {
+      seconds: 1789797697
+      nanos: 144570907
+    }
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 14
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+    started_at {
+      seconds: 1789797697
+      nanos: 144570907
+    }
+  }
+  planner_response {
+    stop_reason: STOP_REASON_CLIENT_STREAM_ERROR
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_ERROR_MESSAGE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797856
+      nanos: 317581667
+    }
+    source: CORTEX_STEP_SOURCE_SYSTEM
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 15
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+  }
+  error_message {
+    error {
+      user_error_message: "Encountered retryable error from model provider: Agent execution terminated due to error."
+      short_error: "generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash: generic::resource_exhausted: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_tokens_per_model_per_user, limit: 25000000, model: gemini-3.8-flash"
+      error_id: "3e076a46-4740-4768-8750-9ebfe37edbbe-15"
+      error_code: 8
+    }
+    should_show_model: true
+  }
+}
+steps {
+  type: CORTEX_STEP_TYPE_PLANNER_RESPONSE
+  status: CORTEX_STEP_STATUS_DONE
+  metadata {
+    created_at {
+      seconds: 1789797856
+      nanos: 318055137
+    }
+    source: CORTEX_STEP_SOURCE_MODEL
+    viewable_at {
+      seconds: 1789797856
+      nanos: 410008473
+    }
+    finished_generating_at {
+      seconds: 1789797856
+      nanos: 410007703
+    }
+    completed_at {
+      seconds: 1789797856
+      nanos: 410007703
+    }
+    generator_model: MODEL_GOOGLE_GEMINI_INTERNAL_BYOM
+    execution_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    source_trajectory_step_info {
+      trajectory_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+      step_index: 16
+      cascade_id: "3e076a46-4740-4768-8750-9ebfe37edbbe"
+    }
+    step_generation_version: 1
+    model_info {
+      model_name: "gemini-3.8-flash"
+      thinking_budget: 4000
+    }
+    started_at {
+      seconds: 1789797856
+      nanos: 410007703
+    }
+  }
+  planner_response {
+    stop_reason: STOP_REASON_CLIENT_STREAM_ERROR
+  }
+}
