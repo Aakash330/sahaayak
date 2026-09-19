@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { explainMessage, UnderstandResult } from '../../services/gemini';
+import { explainMessage, UnderstandResult } from '../../services/gemini/understand';
 import { useReadAloud } from '../../hooks';
 import { copyToClipboard, MAX_INPUT_LENGTH, getErrorMessage } from '../../utils';
 

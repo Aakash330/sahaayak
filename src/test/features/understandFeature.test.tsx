@@ -62,7 +62,7 @@ describe('UnderstandFeature Component & Security Tests', () => {
   // 2. Empty Input
   it('disables explain button when input is empty or whitespace only', async () => {
     render(<UnderstandFeature />);
-    const textbox = screen.getByRole('textbox');
+    const textbox = screen.getByRole('textbox', { name: /Paste the message, email, or bill here/i });
     const explainButton = screen.getByRole('button', { name: /Explain this to me/i });
 
     expect(explainButton).toBeDisabled();
@@ -75,7 +75,7 @@ describe('UnderstandFeature Component & Security Tests', () => {
   // 3. Long Input Protection
   it('enforces maximum character limit of 2000 characters on textarea', () => {
     render(<UnderstandFeature />);
-    const textbox = screen.getByRole('textbox');
+    const textbox = screen.getByRole('textbox', { name: /Paste the message, email, or bill here/i });
     expect(textbox).toHaveAttribute('maxLength', '2000');
   });
 
@@ -86,7 +86,7 @@ describe('UnderstandFeature Component & Security Tests', () => {
     );
 
     render(<UnderstandFeature />);
-    const textbox = screen.getByRole('textbox');
+    const textbox = screen.getByRole('textbox', { name: /Paste the message, email, or bill here/i });
     await userEvent.type(textbox, 'Complicated notice');
 
     const explainButton = screen.getByRole('button', { name: /Explain this to me/i });
@@ -113,7 +113,7 @@ describe('UnderstandFeature Component & Security Tests', () => {
     vi.mocked(geminiService.explainMessage).mockResolvedValueOnce(maliciousResult);
 
     render(<UnderstandFeature />);
-    const textbox = screen.getByRole('textbox');
+    const textbox = screen.getByRole('textbox', { name: /Paste the message, email, or bill here/i });
     await userEvent.type(textbox, '<script>alert("test")</script>');
 
     await userEvent.click(screen.getByRole('button', { name: /Explain this to me/i }));
@@ -127,7 +127,7 @@ describe('UnderstandFeature Component & Security Tests', () => {
   // 6. Keyboard Accessibility
   it('supports full keyboard navigation and focus management', async () => {
     render(<UnderstandFeature />);
-    const textbox = screen.getByRole('textbox');
+    const textbox = screen.getByRole('textbox', { name: /Paste the message, email, or bill here/i });
 
     // Tab into textbox
     textbox.focus();
@@ -163,7 +163,7 @@ describe('UnderstandFeature Component & Security Tests', () => {
     });
 
     render(<UnderstandFeature onHelpMeDo={onHelpMeDoMock} />);
-    const textbox = screen.getByRole('textbox');
+    const textbox = screen.getByRole('textbox', { name: /Paste the message, email, or bill here/i });
     await userEvent.type(textbox, 'Electricity bill ₹1,240');
     await userEvent.click(screen.getByRole('button', { name: /Explain this to me/i }));
 

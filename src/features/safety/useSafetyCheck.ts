@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { checkSafety, SafetyCheckResult } from '../../services/gemini';
+import { checkSafety, SafetyCheckResult } from '../../services/gemini/safety';
 import { useReadAloud } from '../../hooks';
 import { copyToClipboard, MAX_INPUT_LENGTH, getErrorMessage } from '../../utils';
 

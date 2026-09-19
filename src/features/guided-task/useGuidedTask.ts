@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { breakIntoSteps, GuidedTaskResult } from '../../services/gemini';
+import { breakIntoSteps, GuidedTaskResult } from '../../services/gemini/guidedTask';
 import { useReadAloud } from '../../hooks';
 import { MAX_INPUT_LENGTH, getErrorMessage } from '../../utils';
 
