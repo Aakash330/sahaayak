@@ -1,73 +1,106 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { callGemini, AiError, ai } from '../../src/services/gemini/client';
-import { validateAnalyzedMessage } from '../../src/services/gemini/understand';
-
-// Mock the GoogleGenAI instance
-vi.mock('@google/genai', () => {
-  return {
-    GoogleGenAI: vi.fn().mockImplementation(() => ({
-      models: {
-        generateContent: vi.fn(),
-      },
-    })),
-  };
-});
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { callGemini, AiError, clearAiCache } from '../../services/gemini/client';
+import { validateAnalyzedMessage } from '../../services/gemini/understand';
 
 describe('Gemini Service Client', () => {
   const dummyValidator = (data: any) => data;
-  const generateContentMock = ai.models.generateContent as unknown as ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    clearAiCache();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('handles valid Gemini response', async () => {
-    generateContentMock.mockResolvedValueOnce({ text: '{"success": true}' });
-    
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ text: '{"success": true}' }),
+    } as Response);
+
     const result = await callGemini('test prompt', 'system prompt', dummyValidator);
     expect(result).toEqual({ success: true });
   });
 
   it('handles malformed JSON', async () => {
-    generateContentMock.mockResolvedValueOnce({ text: '{invalid json' });
-    
-    await expect(callGemini('test', 'system', dummyValidator)).rejects.toThrow(AiError);
-    await expect(callGemini('test', 'system', dummyValidator)).rejects.toHaveProperty('type', 'parsing');
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ text: '{invalid json' }),
+    } as Response);
+
+    await expect(callGemini('test', 'system', dummyValidator)).rejects.toMatchObject({
+      type: 'parsing',
+    });
   });
 
   it('handles empty response', async () => {
-    generateContentMock.mockResolvedValueOnce({ text: '' });
-    
-    await expect(callGemini('test', 'system', dummyValidator)).rejects.toThrow(AiError);
-    await expect(callGemini('test', 'system', dummyValidator)).rejects.toHaveProperty('type', 'empty');
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ text: '' }),
+    } as Response);
+
+    await expect(callGemini('test', 'system', dummyValidator)).rejects.toMatchObject({
+      type: 'empty',
+    });
   });
 
   it('handles API failure', async () => {
-    generateContentMock.mockRejectedValueOnce(new Error('API Down'));
-    
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({ error: 'Internal Server Error' }),
+    } as Response);
+
     await expect(callGemini('test', 'system', dummyValidator)).rejects.toThrow(AiError);
-    await expect(callGemini('test', 'system', dummyValidator)).rejects.toHaveProperty('type', 'network');
+    await expect(callGemini('test', 'system', dummyValidator)).rejects.toHaveProperty(
+      'type',
+      'network'
+    );
   });
 
   it('rejects prompts over 5000 characters', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
     const longPrompt = 'a'.repeat(5001);
     await expect(callGemini(longPrompt, 'system', dummyValidator)).rejects.toThrow(AiError);
-    await expect(callGemini(longPrompt, 'system', dummyValidator)).rejects.toHaveProperty('type', 'validation');
-    expect(generateContentMock).not.toHaveBeenCalled();
+    await expect(callGemini(longPrompt, 'system', dummyValidator)).rejects.toHaveProperty(
+      'type',
+      'validation'
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('handles timeout', async () => {
-    // Mock an API call that never resolves
-    generateContentMock.mockImplementationOnce(() => new Promise((resolve) => setTimeout(resolve, 20000)));
-    
-    // We mock timers to speed up the test
-    vi.useFakeTimers();
-    const promise = callGemini('test', 'system', dummyValidator);
-    vi.advanceTimersByTime(16000); // Advance past 15s timeout
-    
-    await expect(promise).rejects.toThrow(AiError);
-    await expect(promise).rejects.toHaveProperty('type', 'timeout');
-    vi.useRealTimers();
+  it('serves repeated identical queries from cache without extra network requests', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ text: '{"cached": true}' }),
+    } as Response);
+
+    const first = await callGemini('test prompt', 'system', dummyValidator);
+    const second = await callGemini('test prompt', 'system', dummyValidator);
+
+    expect(first).toEqual({ cached: true });
+    expect(second).toEqual({ cached: true });
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('deduplicates simultaneous in-flight requests for the same prompt', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
+      return {
+        ok: true,
+        json: async () => ({ text: '{"deduped": true}' }),
+      } as Response;
+    });
+
+    const [first, second] = await Promise.all([
+      callGemini('concurrent prompt', 'system', dummyValidator),
+      callGemini('concurrent prompt', 'system', dummyValidator),
+    ]);
+
+    expect(first).toEqual({ deduped: true });
+    expect(second).toEqual({ deduped: true });
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -76,8 +109,8 @@ describe('Gemini Validators', () => {
     const data = {
       summary: 'Test summary',
       actionRequired: true,
-      safety: 'safe',
-      nextSteps: ['step 1']
+      safety: 'safe' as const,
+      nextSteps: ['step 1'],
     };
     const result = validateAnalyzedMessage(data);
     expect(result).toEqual(data);

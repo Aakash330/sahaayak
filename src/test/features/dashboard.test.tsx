@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { Dashboard } from '../../src/features/dashboard/Dashboard';
+import { Dashboard } from '../../features/dashboard/Dashboard';
 
 describe('Dashboard Feature', () => {
   it('renders dashboard greeting correctly', async () => {

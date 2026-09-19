@@ -4,7 +4,8 @@ import App from '../App';
 describe('App Test', () => {
   it('renders without crashing', () => {
     render(<App />);
-    const appContainer = screen.getByTestId('app-container');
-    expect(appContainer).toBeInTheDocument();
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: /Main App Modes/i })).toBeInTheDocument();
+    expect(screen.getByText('Sahaayak')).toBeInTheDocument();
   });
 });

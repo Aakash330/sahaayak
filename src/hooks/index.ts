@@ -33,3 +33,6 @@ export function useAsync<T>(asyncFunction: () => Promise<T>, immediate = true) {
 
   return { execute, status, data, error };
 }
+
+export * from './useReadAloud';
+export * from './useSpeechRecognition';

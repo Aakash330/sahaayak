@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AppShell } from '../../src/components/ui/Layout';
-import { TextSizeProvider } from '../../src/accessibility/TextSizeContext';
+import { AppShell } from '../../components/ui/Layout';
+import { TextSizeProvider } from '../../accessibility/TextSizeContext';
 
 describe('Layout and TextSizeProvider', () => {
   it('renders header and main content area', () => {

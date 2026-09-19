@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { validateBriefingResult } from '../../src/services/gemini/dailyBriefing';
-import { DailyItem } from '../../src/models';
+import { validateBriefingResult } from '../../services/gemini/dailyBriefing';
+import { DailyItem } from '../../models';
 
 describe('Daily Briefing Gemini Validator', () => {
   const originalItems: DailyItem[] = [

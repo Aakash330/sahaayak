@@ -15,9 +15,17 @@ export const TextSizeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return (saved as TextSize) || 'normal';
   });
 
+  const [announcement, setAnnouncement] = useState('');
+
   const setTextSize = (size: TextSize) => {
     setTextSizeState(size);
     localStorage.setItem('sahaayak-text-size', size);
+    const readableLabels: Record<TextSize, string> = {
+      normal: 'Normal text size',
+      large: 'Large text size',
+      'extra-large': 'Extra large text size',
+    };
+    setAnnouncement(`Text size changed to ${readableLabels[size]}.`);
   };
 
   useEffect(() => {
@@ -28,6 +36,11 @@ export const TextSizeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   return (
     <TextSizeContext.Provider value={{ textSize, setTextSize }}>
+      {announcement && (
+        <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+          {announcement}
+        </div>
+      )}
       {children}
     </TextSizeContext.Provider>
   );

@@ -14,9 +14,17 @@ export const VisuallyHidden: React.FC<React.PropsWithChildren> = ({ children }) 
 /**
  * AriaLive component for dynamic updates like AI responses
  */
-export const LiveAnnouncer: React.FC<{ message: string }> = ({ message }) => {
+export const LiveAnnouncer: React.FC<{ message: string; priority?: 'polite' | 'assertive' }> = ({
+  message,
+  priority = 'polite',
+}) => {
   return (
-    <div aria-live="polite" className="sr-only">
+    <div
+      role="status"
+      aria-live={priority}
+      aria-atomic="true"
+      className="sr-only"
+    >
       {message}
     </div>
   );

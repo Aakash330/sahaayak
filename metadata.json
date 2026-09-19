@@ -1,1 +1,1 @@
-{"name":"Untitled","description":"","requestFramePermissions":[],"majorCapabilities":["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]}
+{"name":"Sahaayak","description":"AI daily life companion for senior citizens to understand messages, bills, and daily tasks","requestFramePermissions":["microphone"],"majorCapabilities":["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]}

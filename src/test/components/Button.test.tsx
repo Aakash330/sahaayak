@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
-import { Button } from '../../src/components/ui/Button';
+import { Button } from '../../components/ui/Button';
 
 describe('Button Component', () => {
   it('renders children correctly', () => {
